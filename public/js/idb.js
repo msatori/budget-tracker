@@ -49,7 +49,7 @@ function uploadAction() {
     const store = transaction.objectStore('transaction');
 
     // get all records from store and set to a variable
-    const getAll = pizzaObjectStore.getAll();
+    const getAll = store.getAll();
 
     //after a successful getAll, run this function
     getAll.onsuccess = function () {
@@ -85,3 +85,6 @@ function uploadAction() {
         }
     };
 };
+
+// listen for app coming back online
+window.addEventListener('online', uploadAction());
