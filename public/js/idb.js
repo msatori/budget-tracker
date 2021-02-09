@@ -48,8 +48,6 @@ function saveRecord(record) {
 }
 
 function uploadAction() {
-
-
     // open a transaction on db
     const transaction = db.transaction(['transactions'], 'readwrite');
 
@@ -93,4 +91,4 @@ function uploadAction() {
 };
 
 // listen for app coming back online
-window.addEventListener('online', uploadAction());
+window.addEventListener('online', uploadAction);

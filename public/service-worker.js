@@ -5,9 +5,9 @@ const CACHE_NAME = APP_PREFIX + VERSION;
 
 const FILES_TO_CACHE = [
     "./index.html",
-    "/css/style.css",
-    "./js/index.js",
+    "./css/styles.css",
     "./js/idb.js",
+    "./js/index.js",
     "./manifest.json",
     "./icons/icon-72x72.png",
     "./icons/icon-96x96.png",
@@ -15,8 +15,8 @@ const FILES_TO_CACHE = [
     "./icons/icon-144x144.png",
     "./icons/icon-152x152.png",
     "./icons/icon-192x192.png",
-    "./icons/icon-348x348.png",
-    "./icons/icon-512x512.png",
+    "./icons/icon-384x384.png",
+    "./icons/icon-512x512.png"
 ];
 
 self.addEventListener('install', function (e) {
@@ -48,39 +48,45 @@ self.addEventListener('activate', function (e) {
     );
 });
 
-self.addEventListener('fetch', function (e) {
-
+self.addEventListener("fetch", function (e) {
+    // cache all get requests to /api routes
     if (e.request.url.includes("/api/")) {
         e.respondWith(
             caches
                 .open(CACHE_NAME)
-                .then((cache) => {
+                .then(cache => {
                     return fetch(e.request)
-                        .then((response) => {
-                            //clone response
-                            if (response === 200) {
-                                cache.put(e.request, response.clone());
+                        .then(response => {
+                            // clone response if good
+                            if (response.status === 200) {
+                                cache.put(e.request.url, response.clone());
                             }
 
-                            return response
+                            return response;
                         })
-                        .catch(() => {
-                            //no network, try to get from cache
+                        .catch(err => {
+                            // no network - get from cache
                             return cache.match(e.request);
                         });
-                })
-                .catch((err) => {
-                    console.log(err)
-                })
+                }).catch(err => console.log(err))
         );
-        //stop fetch event 
+
         return;
     }
 
-    //static assets for non-api requests - offline first
     e.respondWith(
-        caches.match(e.request).then((response) => {
-            return response || fetch(e.request);
-        })
+        fetch(e.request)
+            .catch(function () {
+                return caches
+                    .match(e.request)
+                    .then(function (response) {
+                        if (response) {
+                            return response;
+                        } else if (e.request.headers.get("accept").includes("text/html")) {
+                            // return the cached home page
+                            return caches.match("/");
+                        }
+                    });
+            })
     );
 });
