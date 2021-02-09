@@ -1,4 +1,10 @@
-const { get, ServerResponse } = require("http");
+const indexedDB =
+    window.indexedDB ||
+    window.mozIndexedDB ||
+    window.webkitIndexedDB ||
+    window.msIndexedDB ||
+    window.shimIndexedDB;
+
 
 // create variable to hold db connection
 let db;
@@ -6,19 +12,19 @@ let db;
 const request = indexedDB.open('budget', 1);
 
 // this event will emit if the database version changes (nonexistant to version 1, v1 to v2, etc.)
-request.onupgradeneeded = function (event) {
+request.onupgradeneeded = function ({target}) {
     // save a reference to the database 
-    const db = event.target.result;
+    const db = target.result;
     // create an object store (table) called `transactions`, set it to have an auto incrementing primary key of sorts 
     db.createObjectStore('transactions', { autoIncrement: true });
 };
 
 // upon a successful 
-request.onsuccess = function (event) {
+request.onsuccess = function ({target}) {
     // when db is successfully created with its object store (from onupgradedneeded event above) or simply established a connection, save reference to db in global variable
-    db = event.target.result;
+    db = target.result;
 
-    // check if app is online, if yes run uploadPizza() function to send all local db data to api
+    // check if app is online, if yes run uploadAction() function to send all local db data to api
     if (navigator.onLine) {
         uploadAction();
     }
@@ -42,11 +48,13 @@ function saveRecord(record) {
 }
 
 function uploadAction() {
+
+
     // open a transaction on db
-    const transaction = db.transaction(['transaction'], 'readwrite');
+    const transaction = db.transaction(['transactions'], 'readwrite');
 
     // access  object store
-    const store = transaction.objectStore('transaction');
+    const store = transaction.objectStore('transactions');
 
     // get all records from store and set to a variable
     const getAll = store.getAll();
@@ -55,19 +63,17 @@ function uploadAction() {
     getAll.onsuccess = function () {
         //send any data in indexDB store to the api server
         if (getAll.result.length > 0) {
-            fetch('/api/budget', {
+            fetch('/api/transaction/bulk', {
                 method: 'POST',
                 body: JSON.stringify(getAll.result),
                 headers: {
-                    Accept: 'application/json'
+                    Accept: 'application/json, text/plain, */*',
+                    'Content-Type': "application/json"
                 }
             })
-                .then(response => response.json())
-                .then(serverResponse => {
-                    if (serverResponse.message) {
-                        throw new Error(serverResponse);
-                    }
-
+                .then(response => { return response.json() })
+                .then(() => {
+                   
                     //open one more transaction
                     const transaction = db.transaction(['transactions'], 'readwrite');
 
