@@ -3,8 +3,9 @@
 
  ## Description 
 
-  Created using MongoDB, IndexDB, and Express, Budgie The Tracker can be used offline and will automatically update when reconnected to a network. 
+  Created using MongoDB, IndexDB, and Express, Budgie The Tracker can be used offline and will automatically update when reconnected to a network. This application is a fully functional PWA and can be downloaded via the address bar.
  
+[Deployed App](https://stark-bayou-63490.herokuapp.com/ "Visit the Deployed Application Here.")
 
   ## Table of Contents (Optional)
 
