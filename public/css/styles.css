@@ -1,12 +1,22 @@
 body {
   font-size: 120%;
   font-family: Arial;
+  background-color: #9BB7D4;
+  margin: 0;
+}
+
+header {
+  -webkit-box-shadow: 0 10px 5px #888888c7;
+  -moz-box-shadow: 0 10px 5px #888888a0;
+  box-shadow: 0 15px 5px #5d5d6034;
+  width: 100vw;
+  margin: 0;
 }
 
 button, input {
   font-size: 100%;
   font-family: Arial;
-}
+} 
 
 table {
   width: 100%;
